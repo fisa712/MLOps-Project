@@ -5,37 +5,37 @@ import pytest
 from typing import get_args, List, Literal
 from pydantic import BaseModel, conint, confloat, conlist
 
-CATEGORY_NAMES = Literal["chair", "couch", "tv", "remote", "book", "vase"] 
+CATEGORY_NAMES = Literal["0", "empty_slot"] 
 
-class COCOCategory(BaseModel):
+class Category(BaseModel):
     id: int
     name: CATEGORY_NAMES
 
 
-class COCOImage(BaseModel):
+class Image(BaseModel):
     id: int
     file_name: str
 
 
-class COCOAnnotation(BaseModel):
+class Annotation(BaseModel):
     image_id: int
     bbox: conlist(int, min_items=4, max_items=4)
     category_id: int
 
 
-class COCODetectionDataset(BaseModel):
+class DetectionDataset(BaseModel):
     images: List[COCOImage]
     annotations: List[COCOAnnotation]
     categories: List[COCOCategory]
 
 
-@pytest.mark.parametrize("split", ["train", "val"])
+@pytest.mark.parametrize("split", ["train", "valid"])
 def test_coco_format(split):
 
     annotations_file = f"data/coco_sample/annotations/split_{split}.json"
     
     with open(annotations_file, "r") as f:
-        dataset = COCODetectionDataset(**json.load(f))
+        dataset = DetectionDataset(**json.load(f))
 
     # Check image ids are unique
     image_ids = [img.id for img in dataset.images]
